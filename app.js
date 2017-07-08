@@ -8,9 +8,9 @@ strip.init(NUMBER_OF_LEDS);
 strip.setBrightness(25); // A value between 0 and 255
 
 //setup moment to manage led on/off schedule
-var moment = require('moment');
-var startTime = moment('8:30am', 'h:mma');
-var endTime = moment('7:00pm', 'h:mma');
+var moment = require('moment-timezone');
+var startTime = moment.tz('8:30am', 'h:mma', 'Europe/Sofia');
+var endTime = moment.tz('7:00pm', 'h:mma', 'Europe/Sofia');
 var ledsAreOff = false;
 
 //setup amqp client
