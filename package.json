@@ -1,0 +1,25 @@
+{
+	"name": "rpzw",
+	"version": "0.0.1",
+	"description": "Build notifications with RaspberryPi Zero W and Pimoroni Unicorn HAT",
+	"main": "app.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node app.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/lgramatikov/rpzw.git"
+	},
+	"author": "Laz",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/lgramatikov/rpzw/issues"
+	},
+	"homepage": "https://github.com/lgramatikov/rpzw#readme",
+	"dependencies": {
+		"amqp10": "^3.5.3",
+		"moment": "^2.18.1",
+		"rpi-ws281x-native": "^0.8.2"
+	}
+}
