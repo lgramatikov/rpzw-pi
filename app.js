@@ -108,6 +108,7 @@ function handleMessage(message) {
 
 	var i = 0;
 	animationInProgress = true;
+	ledsAreOff = false;
 
 	//reset leds by setting color to 0 (i.e. off)
 	leds.fill(0);
