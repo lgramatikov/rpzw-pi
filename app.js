@@ -2,33 +2,37 @@
 
 const NUMBER_OF_LEDS = 32;
 
+var settings = {
+	serviceBusHost: process.env.RPZW_SB_NAMESPACE,
+	queueName: process.env.RPZW_SB_QUEUE_NAME,
+	SASKeyName: process.env.RPZW_SB_SAS_KEY_NAME,
+	SASKey: process.env.RPZW_SB_SAS_KEY,
+	ScheduleLedsOn: process.env.RPZW_SCHED_ON,
+	ScheduleLedsOff: process.env.RPZW_SCHED_OFF,
+	ScheduleTimeZone: process.env.RPZW_SCHED_TIME_ZONE,
+	LedBrightness: process.env.RPZW_LED_BRIGHTNESS
+};
+
+
+if (!settings.serviceBusHost || !settings.queueName || !settings.SASKeyName || !settings.SASKey || !settings.ScheduleLedsOn || !settings.ScheduleLedsOff || !settings.ScheduleTimeZone || !settings.LedBrightness) {
+	console.error('Must provide either settings json file or appropriate environment variables.');
+	process.exit(1);
+}
+
 //setup led strip
 var strip = require('rpi-ws281x-native');
 strip.init(NUMBER_OF_LEDS);
-strip.setBrightness(25); // A value between 0 and 255
+strip.setBrightness(parseInt(settings.LedBrightness)); // A value between 0 and 255
 
 //setup moment to manage led on/off schedule
 var moment = require('moment-timezone');
-var startTime = moment.tz('8:30am', 'h:mma', 'Europe/Sofia');
-var endTime = moment.tz('7:00pm', 'h:mma', 'Europe/Sofia');
+var startTime = moment.tz(settings.ScheduleLedsOn, 'h:mma', settings.ScheduleTimeZone);
+var endTime = moment.tz(settings.ScheduleLedsOff, 'h:mma', settings.ScheduleTimeZone);
 var ledsAreOff = false;
 
 //setup amqp client
 var AMQPClient = require('amqp10').Client;
 var Policy = require('amqp10').Policy;
-
-var settings = {
-	serviceBusHost: process.env.RPZW_SB_NAMESPACE,
-	queueName: process.env.RPZW_SB_QUEUE_NAME,
-	SASKeyName: process.env.RPZW_SB_SAS_KEY_NAME,
-	SASKey: process.env.RPZW_SB_SAS_KEY
-};
-
-
-if (!settings.serviceBusHost || !settings.queueName || !settings.SASKeyName || !settings.SASKey) {
-	console.error('Must provide either settings json file or appropriate environment variables.');
-	process.exit(1);
-}
 
 var protocol = 'amqps';
 var serviceBusHost = settings.serviceBusHost + '.servicebus.windows.net';
@@ -126,11 +130,12 @@ function handleMessage(message) {
 }
 
 function handleIdleAnimation() {
+	var m = moment.tz('Europe/Sofia');
 	if (animationInProgress) {
 		return;
 	}
 		
-	if (moment().isBetween(startTime, endTime)) {
+	if (m.isBetween(startTime, endTime) && (m.weekday() > 0) && (m.weekday() < 6)) {
 		leds.fill(0);
 		leds[Math.floor(Math.random() * 31)] = Math.floor(Math.random() * 0xffffff);
 		strip.render(leds);
